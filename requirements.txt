@@ -1,0 +1,4 @@
+networkx>=2.8.0
+matplotlib>=3.5.0
+openai>=1.0.0
+numpy>=1.22.0
