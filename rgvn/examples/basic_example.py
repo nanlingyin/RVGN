@@ -92,11 +92,17 @@ def main():
     print("\n构建推理图结构...")
     graph = graph_builder.build_graph(reasoning)
     print(f"图创建完成: {len(graph.nodes)} 个节点, {len(graph.edges)} 条边")
-    
-    # 验证数学表达式
+      # 验证数学表达式
     print("\n验证数学表达式...")
     math_validation = math_validator.validate_expressions(reasoning)
     print(f"提取了 {len(math_validation)} 个数学表达式")
+    
+    # 显示验证结果
+    for i, expr in enumerate(math_validation):
+        validity = "✓ 有效" if expr.get('is_valid', False) else "✗ 无效"
+        print(f"{i+1}. {expr['equation']} - {validity}")
+        if 'note' in expr:
+            print(f"   备注: {expr['note']}")
     
     # 检测错误
     print("\n检测推理错误...")

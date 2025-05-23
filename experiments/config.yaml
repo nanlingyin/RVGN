@@ -1,0 +1,79 @@
+# RVGN 实验配置文件
+# 此配置文件定义了实验参数、数据集选择和评估指标
+
+# 实验基本信息
+experiment_name: rvgn_comprehensive_evaluation
+description: "使用多个数据集对RVGN进行综合评估，包括基线对比和对抗性测试"
+
+# 数据集配置
+datasets:
+  logiqa:
+    splits: ['train', 'dev', 'test']  # 使用的数据分割
+    sample_size:
+      train: 50  # 从训练集使用的样本数量
+      dev: 50    # 从开发集使用的样本数量
+      test: 50   # 从测试集使用的样本数量
+
+  reclor:
+    splits: ['train', 'val', 'test']
+    sample_size:
+      train: 50
+      val: 50    # ReClor使用'val'而非'dev'
+      test: 50
+
+  adversarial:
+    source_dataset: 'logiqa'  # 基于哪个数据集生成对抗性样本
+    source_split: 'dev'       # 使用哪个分割作为基础
+    perturbation_types:       # 使用的扰动类型
+      - 'irrelevant_info'     # 添加不相关信息
+      - 'negation'            # 逻辑否定
+      - 'reordering'          # 重排序推理步骤
+    sample_size: 30           # 每种扰动类型生成的样本数量
+
+# LLM配置
+llm:
+  provider: 'openai'          # LLM提供者
+  model: 'gpt-4o-mini'        # 使用的模型名称
+  api_key_env: 'OPENAI_API_KEY'  # API密钥环境变量名
+  max_tokens: 1500            # 生成的最大token数量
+  temperature: 0.7            # 采样温度
+
+# RVGN配置
+rvgn:
+  confidence_threshold: 0.6   # 错误检测器的置信度阈值
+  enable_critique: true       # 是否使用LLM对RVGN反馈进行优化
+
+# 实验配置
+experiments:
+  run_baseline: true          # 是否运行基线实验
+  run_rvgn: true              # 是否运行RVGN实验
+  run_adversarial: true       # 是否运行对抗性实验
+  
+  # 每个实验的重复次数（取平均值）
+  repetitions: 3
+
+# 评估指标配置
+metrics:
+  accuracy: true              # 任务准确率
+  rpqs: true                  # 推理过程质量得分
+  robustness: true            # 鲁棒性与一致性评分
+  
+  # 使用哪些RPQS维度进行评估
+  rpqs_dimensions:
+    - 'structure'             # 步骤结构
+    - 'logical_coherence'     # 逻辑连贯性
+    - 'factual_correctness'   # 事实正确性
+    - 'relevance'             # 相关性
+    - 'completeness'          # 完整性
+
+# 输出配置
+output:
+  # 结果保存路径
+  results_dir: 'results'
+  save_raw_responses: true    # 是否保存原始响应
+  save_graphs: true           # 是否保存推理图可视化
+  formats:                    # 输出格式
+    - 'json'                  # JSON格式
+    - 'csv'                   # CSV格式
+    - 'tables'                # LaTeX表格
+    - 'figures'               # 图表
